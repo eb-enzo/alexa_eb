@@ -24,7 +24,7 @@ def new_game():
 @ask.intent("EventsInMyAreaIntent", convert={'when': str, })
 def answer(when):
     event = call_eb_api(None)
-    result = statement('This event is happening in your area').simple_card(**event)
+    result = statement('This event is happening in your area: {}'.format(event['title'])).simple_card(**event)
 
     return result
 
@@ -39,7 +39,6 @@ def call_eb_api(when):
                     "current_future"
                 ],
                 "page_size": 1,
-                "page_number": 1,
                 "point_radius": {
                     "latitude": -32.895601,
                     "radius": "10km",
@@ -50,6 +49,7 @@ def call_eb_api(when):
         headers={'content-type': 'application/json'},
     )
     parsed_response = json.loads(response.text)
+
     e = parsed_response['events']['results'][0]
 
     event_description = {'title': e['name'], 'content': e['summary']}
