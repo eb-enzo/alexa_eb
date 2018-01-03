@@ -1,0 +1,10 @@
+{
+    "dev": {
+        "app_function": "eventbrite.app", 
+        "aws_region": "us-west-1", 
+        "profile_name": "default", 
+        "project_name": "eb-alexa", 
+        "runtime": "python2.7", 
+        "s3_bucket": "zappa-te49xs95n"
+    }
+}
