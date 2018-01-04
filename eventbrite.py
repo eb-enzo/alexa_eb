@@ -18,7 +18,6 @@ app = Flask(__name__)
 
 ask = Ask(app, "/")
 
-logging.getLogger("flask_ask").setLevel(logging.DEBUG)
 logger = logging.getLogger()
 
 
@@ -137,4 +136,7 @@ def next_event_in_city(city):
 
 
 if __name__ == '__main__':
+    # place_ids = get_place_ids("New York")
+    # events_to_alexa, alexa_message = call_eb_api_for_next_event(place_ids)
+    # print events_to_alexa
     app.run(debug=True)

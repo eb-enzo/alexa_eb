@@ -41,7 +41,7 @@ def call_eb_api_for_next_event(place_ids):
         candidate_events_to_alexa[res['eid']] = {
             'name': res['name'].encode('utf-8'),
             'summary': res['summary'].encode('utf-8'),
-            'iamges': res['image']['original']['url'],
+            'image': res['image']['original']['url'],
             'start_date': res['start_date'],
             'start_time': res['start_time'],
         }
