@@ -1,5 +1,4 @@
 import logging
-
 import json
 
 import requests
@@ -18,9 +17,8 @@ def call_eb_api_for_next_event(place_ids):
                 "dates": [
                     "current_future"
                 ],
-                "page_size": 20,
+                "page_size": 1,
                 "places": place_ids,
-
             },
             "expand.destination_event": [
                 "primary_venue",

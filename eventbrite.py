@@ -3,11 +3,14 @@ import logging
 import json
 import requests
 
-import urllib
 from flask import Flask, render_template
-from flask_ask import Ask, request, question, session, statement, context
+from flask_ask import Ask, question, session, statement, context
 
-from eb_api_connector import call_eb_api_for_next_event, get_place_ids
+from eb_api_connector import (
+    call_eb_api_for_next_event,
+    get_place_ids,
+)
+
 
 TOKEN = '7FLR77ARPTR4VLY3JFMU'
 
@@ -24,33 +27,36 @@ def new_game():
     return question(welcome_msg)
 
 
-@ask.intent("EventsInMyAreaIntent", convert={'when': str, "city": str })
+@ask.intent("EventsInMyAreaIntent", convert={'when': str, "city": str})
 def answer(when, city):
+    logger.info("parameters when: {} ,city: {}".format(when, city))
+
     place_ids = get_place_ids(city)
     event = call_eb_api(when, place_ids)
     return statement(event)
 
 
-def call_eb_api(when):
-    date_range = {"to": when, "from": when}
+def call_eb_api(when, place_ids):
     response = requests.post(
         'https://www.evbqaapi.com/v3/destination/search/?token={}'.format(TOKEN),
         data=json.dumps({
             "event_search": {
-                "date_range": date_range,
+                "date_range": {"to": when, "from": when},
                 "page_size": 1,
-
-            }
+                "places": place_ids,
+            },
         }),
         headers={'content-type': 'application/json'},
     )
-    parsed_response = json.loads(response.text)
+
+    parsed_response = response.json()
     response = ""
+
     if parsed_response['events']['results']:
         e = parsed_response['events']['results'][0]
 
         event = {'title': e['name'], 'content': e['summary']}
-        response = 'This event is happening in your area: {}'.format(event['title']).simple_card(**event)
+        response = 'This event is happening in your area: {}'.format(event['title'])
     else:
         response = "There is no live events to attend."
     return response
@@ -69,6 +75,7 @@ def get_alexa_location():
 @ask.intent("NextEventInMyAreaIntent", convert={"city": str})
 def next_event_in_city(city):
     place_ids = get_place_ids(city)
+
     events_to_alexa, alexa_message = call_eb_api_for_next_event(place_ids)
     return statement(alexa_message) \
         .standard_card(
