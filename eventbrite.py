@@ -7,7 +7,7 @@ import urllib
 from flask import Flask, render_template
 from flask_ask import Ask, request, question, session, statement, context
 
-from eb_api_connector import call_eb_api_for_next_event
+from eb_api_connector import call_eb_api_for_next_event, get_place_ids
 
 TOKEN = '7FLR77ARPTR4VLY3JFMU'
 
@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 ask = Ask(app, "/")
 
-logging.getLogger("flask_ask").setLevel(logging.DEBUG)
+logger = logging.getLogger()
 
 
 @ask.launch
@@ -26,23 +26,9 @@ def new_game():
 
 @ask.intent("EventsInMyAreaIntent", convert={'when': str, "city": str })
 def answer(when, city):
-    event = call_eb_api(when, city)
+    place_ids = get_place_ids(city)
+    event = call_eb_api(when, place_ids)
     return statement(event)
-
-
-def get_place_id(city):
-    city = urllib.urlencode({'q': city})
-    url = "https://www.evbqaapi.com/v3/destination/search/places/?token={TOKEN}&q={city}"
-    response = requests.get(url)
-    parsed_response = json.loads(response.text)
-
-    if parsed_response.get('places'):
-        places = [
-            place['id']
-            for place in parsed_response['places']
-            if place['place_type'] == 'locality'
-        ]
-        return places[:1]
 
 
 def call_eb_api(when):
@@ -82,7 +68,8 @@ def get_alexa_location():
 
 @ask.intent("NextEventInMyAreaIntent", convert={"city": str})
 def next_event_in_city(city):
-    events_to_alexa, alexa_message = call_eb_api_for_next_event(city)
+    place_ids = get_place_ids(city)
+    events_to_alexa, alexa_message = call_eb_api_for_next_event(place_ids)
     return statement(alexa_message) \
         .standard_card(
             title=events_to_alexa[0]['name'],
@@ -92,4 +79,7 @@ def next_event_in_city(city):
 
 
 if __name__ == '__main__':
+    # place_ids = get_place_ids("New York")
+    # events_to_alexa, alexa_message = call_eb_api_for_next_event(place_ids)
+    # print events_to_alexa
     app.run(debug=True)
