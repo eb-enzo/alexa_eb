@@ -3,6 +3,8 @@ import json
 
 import requests
 
+from collections import OrderedDict
+
 TOKEN = '7FLR77ARPTR4VLY3JFMU'
 
 logger = logging.getLogger()
@@ -32,20 +34,30 @@ def call_eb_api_for_next_event(place_ids):
         }),
         headers={'content-type': 'application/json'},
     )
-    parsed_response = json.loads(response.text)
-    response = ""
-    if parsed_response['events']['results']:
-        # e = parsed_response['events']['results'][0]
 
-        # event = {'title': e['name'], 'content': e['summary']}
-        # events = [
-        #     event['name']
-        #     for event in parsed_response['events']['results']
-        # ]
-        return parsed_response['events']['results']
-        # response = 'This event is happening in your area: {}'.format(e['name'])
+    results_from_eb = response.json()
+    candidate_events_to_alexa = OrderedDict()
+    for res in results_from_eb['events']['results']:
+        candidate_events_to_alexa[res['eid']] = {
+            'name': res['name'].encode('utf-8'),
+            'summary': res['summary'].encode('utf-8'),
+            'iamges': res['image']['original']['url'],
+            'start_date': res['start_date'],
+            'start_time': res['start_time'],
+        }
 
-    return []
+    itens_to_message = [
+        '{} in {} starting at {}'.format(
+            res['name'].encode('utf-8'),
+            res['start_date'],
+            res['start_time'],
+        )
+        for res in candidate_events_to_alexa.values()[:3]
+    ]
+    message = 'Hi! There is three events in your region: {}'.format(
+            '. '.join(itens_to_message)
+        )
+    return (candidate_events_to_alexa.values()[:3], message)
 
 
 def get_place_ids(city):
