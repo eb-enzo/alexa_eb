@@ -1,3 +1,6 @@
+
+*.zip
+zappa_settings.json
 # Created by https://www.gitignore.io/api/vim,linux,macos,emacs,python,windows,pycharm,sublimetext,visualstudiocode
 
 ### Emacs ###
