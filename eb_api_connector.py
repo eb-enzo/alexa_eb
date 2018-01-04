@@ -60,7 +60,6 @@ def call_eb_api_for_next_event(place_ids):
 
 
 def get_place_ids(city):
-
     url = "https://www.evbqaapi.com/v3/destination/search/places/?token={token}&q={city}".format(
         city=city,
         token=TOKEN,
