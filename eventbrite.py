@@ -126,6 +126,7 @@ def get_alexa_location():
 @ask.intent("NextEventInMyAreaIntent", convert={"city": str})
 def next_event_in_city(city):
     place_ids = get_place_ids(city)
+
     events_to_alexa, alexa_message = call_eb_api_for_next_event(place_ids)
     return statement(alexa_message) \
         .standard_card(
