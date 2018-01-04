@@ -6,6 +6,7 @@ import requests
 from collections import OrderedDict
 
 TOKEN = '7FLR77ARPTR4VLY3JFMU'
+
 logger = logging.getLogger()
 
 
