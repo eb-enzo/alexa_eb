@@ -36,6 +36,15 @@ def answer(when, city):
     return statement(event)
 
 
+@ask.intent("EventsInMyAreaByCategoryIntent", convert={'when': str, "city": str, "category": str})
+def answer_by_category(when, city, category):
+    logger.info("parameters when: {} ,city: {}, category: {}".format(when, city, category))
+
+    place_ids = get_place_ids(city)
+    event = call_eb_api_with_category(when, place_ids, category)
+    return statement(event)
+
+
 def call_eb_api(when, place_ids):
     response = requests.post(
         'https://www.evbqaapi.com/v3/destination/search/?token={}'.format(TOKEN),
@@ -58,7 +67,49 @@ def call_eb_api(when, place_ids):
         event = {'title': e['name'], 'content': e['summary']}
         response = 'This event is happening in your area: {}'.format(event['title'])
     else:
-        response = "There is no live events to attend."
+        response = "There are no live events to attend."
+    return response
+
+
+def call_eb_api_with_category(when, place_ids, category):
+    category_id_map = {
+        "music": "103",
+        "sports": "108",
+        "fitness": "108",
+        "food": "110",
+        "drink": "110",
+        "drinking": "110",
+        "charity": "111",
+        "science": "102",
+        "technology": "102",
+        "tech": "102",
+        "business": "101",
+        "professional": "101",
+    }
+
+    response = requests.get(
+        'https://www.evbqaapi.com/v3/destination/search/events/',
+        params={
+                "token": TOKEN,
+                "place": place_ids[0],
+                "categories": category_id_map.get(category, ""),
+                "start_date.range_start": when+"T00:00:00Z",
+                "start_date.range_end": when+"T23:59:59Z",
+                "expand.destination_event": "image"
+        },
+        headers={'content-type': 'application/json'},
+    )
+
+    parsed_response = response.json()
+    response = ""
+
+    if parsed_response['events']:
+        e = parsed_response['events'][0]
+
+        event = {'title': e['name'], 'content': e['summary']}
+        response = 'This event is happening in your area: {}'.format(event['title'])
+    else:
+        response = "There are no live events to attend."
     return response
 
 
