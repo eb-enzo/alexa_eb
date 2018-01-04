@@ -87,7 +87,7 @@ def next_event_in_city(city):
         .standard_card(title=event[0]['name'],
                     text=event[0]['summary'],
                     # small_image_url='https://example.com/small.png',
-                    large_image_url='https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F38016631%2F236479584138%2F1%2Foriginal.jpg?w=800&rect=0%2C0%2C4500%2C2250&s=d019e9913a345514bc927ff83db3141f')
+                    large_image_url=event['image']['original']['url'])
 
 
 if __name__ == '__main__':

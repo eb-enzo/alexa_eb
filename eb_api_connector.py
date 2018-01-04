@@ -18,7 +18,17 @@ def call_eb_api_for_next_event(city):
                     "radius": "10km",
                     "longitude": -122.405385
                 }
-            }
+            },
+            "expand.destination_event": [
+                "primary_venue",
+                "image"
+            ],
+            "expand.destination_profile": [
+                "image"
+            ],
+            "expand.article": [
+                "image"
+            ]
         }),
         headers={'content-type': 'application/json'},
     )
