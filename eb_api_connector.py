@@ -1,10 +1,14 @@
+import logging
 import json
 
 import requests
 
 TOKEN = '7FLR77ARPTR4VLY3JFMU'
 
-def call_eb_api_for_next_event(city):
+logger = logging.getLogger()
+
+
+def call_eb_api_for_next_event(place_ids):
     response = requests.post(
         'https://www.evbqaapi.com/v3/destination/search/?token={}'.format(TOKEN),
         data=json.dumps({
@@ -13,11 +17,7 @@ def call_eb_api_for_next_event(city):
                     "current_future"
                 ],
                 "page_size": 1,
-                "point_radius": {
-                    "latitude": 37.781973,
-                    "radius": "10km",
-                    "longitude": -122.405385
-                }
+                "places": place_ids,
             },
             "expand.destination_event": [
                 "primary_venue",
@@ -46,3 +46,23 @@ def call_eb_api_for_next_event(city):
         # response = 'This event is happening in your area: {}'.format(e['name'])
 
     return []
+
+
+def get_place_ids(city):
+
+    url = "https://www.evbqaapi.com/v3/destination/search/places/?token={token}&q={city}".format(
+        city=city,
+        token=TOKEN,
+    )
+
+    logger.info("looking for places url: {}".format(url))
+    response = requests.get(url)
+    places = response.json().get('places', [])
+
+    places = [
+        place['id']
+        for place in places
+        if place['place_type'] == 'locality'
+    ]
+    logger.info("places: {}".format(places))
+    return places[:1]
