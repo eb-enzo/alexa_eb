@@ -80,16 +80,16 @@ def get_alexa_location():
         return(r.json())
 
 
-@ask.intent("NextEventInMyAreaIntent", convert={"city": str })
+@ask.intent("NextEventInMyAreaIntent", convert={"city": str})
 def next_event_in_city(city):
-    event = call_eb_api_for_next_event(city)
-    return statement('I found some interesting events for you. Check your Alexa app.') \
-        .standard_card(title=event[0]['name'],
-                    text=event[0]['summary'],
-                    # small_image_url='https://example.com/small.png',
-                    large_image_url='https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F38016631%2F236479584138%2F1%2Foriginal.jpg?w=800&rect=0%2C0%2C4500%2C2250&s=d019e9913a345514bc927ff83db3141f')
+    events_to_alexa, alexa_message = call_eb_api_for_next_event(city)
+    return statement(alexa_message) \
+        .standard_card(
+            title=events_to_alexa[0]['name'],
+            text=events_to_alexa[0]['summary'],
+            large_image_url=events_to_alexa[0]['image'],
+        )
 
 
 if __name__ == '__main__':
-    # print call_eb_api_for_next_event("Mendoza")
     app.run(debug=True)
